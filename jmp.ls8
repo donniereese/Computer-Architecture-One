@@ -1,0 +1,18 @@
+00000001 # initialize
+00000010 # set
+00000000 #   register 0
+00000100 # save to set register
+00000000 #   0
+00000010 # set
+00000001 #   register 1
+00000100 # save to set register
+00000001 #   1
+00000010 # set
+00000000 #   register 0
+00000110 # print current register
+00001100 # add and save to current register
+00000000 #   register 0
+00000001 #   register 1
+00010001 # jump to memory
+00001011 #   memory index 11
+00000000 # halt

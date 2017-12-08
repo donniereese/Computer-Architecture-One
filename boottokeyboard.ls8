@@ -1,0 +1,6 @@
+00000001 # initialize #initializes the app in rom
+# load keyboard driver and set keyboard interrupt to it.
+# write program that listens for key presses
+# on key press load key into memory
+# print character
+# clear key character

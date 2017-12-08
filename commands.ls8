@@ -1,0 +1,22 @@
+00000000# HALT  -- Halt the system
+00000001# INIT  -- Initialize the system
+00000010# SET   -- Set Register Value.
+        #       *  Set reg address
+00000100# SAVE  -- Save curReg to memory Address
+        #       *  Memory address
+00000101# MUL   -- Multiply two registers
+        #       *  register address 1
+        #       *  register address 2
+00000110# PRN   -- Print register address value
+01000001# PRA   -- Print alpha-numeric char. at current register
+00001000# LD    -- Load into cur. reg. from mem. at memory address
+        #       *  memory address
+00001001# ST    -- Store cur. reg. value in mem. at location
+        #       *  memory address
+00010010# LDRI  -- Load from memory address supplied to cur. reg.
+        #       *  memory address
+00010011# STRI  -- Store cur. reg in mem addr stored in reg at supplied reg addr.
+        #       *  reg address
+00001100# ADD   -- add two register address values and put in current register.
+        #       *  register address 1
+        #       *  register address 2
