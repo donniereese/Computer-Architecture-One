@@ -1,6 +1,6 @@
 const INIT  = 0b00000001;   // Initialize
 const SET   = 0b00000010;   //
-const STOR  = 0b00000100;   //
+const SAVE  = 0b00000100;   //
 const LOAD  = 0b00000111;   //
 const MUL   = 0b00000101;   //
 const PRN   = 0b00000110;   //
@@ -14,6 +14,8 @@ const LD    = 0b00001000;   //
 const ST    = 0b00001001;   //
 const LDRI  = 0b00010010;   //
 const STRI  = 0b00010011;   //
+const STOR  = 0b11110101;   //
+const LODM  = 0b11110111;   //
 
 // Math Extension
 const ADD   = 0b00001100;   // add two registers
@@ -103,6 +105,8 @@ class CPU {
 
         // Bus
         this.membus = bus;
+        // set bus read/write banks
+        this.membus.setBANK(this.reg.SRM);
 
         this.EXT = Array(8);
         this.EXT.fill(null);
@@ -142,7 +146,7 @@ class CPU {
         let bt = {
             [INIT]: this.INIT,
             [SET]: this.SET,
-            [STOR]: this.SAVE,
+            [SAVE]: this.SAVE,
             [MUL]: this.MUL,
             [PRN]: this.PRN,
             [HALT]: this.HALT
@@ -172,7 +176,7 @@ class CPU {
         if (RET) bt[RET] = this.RET;
         // Mem store save extension
         if (STOR) bt[STOR] = this.MEMSTORE;
-        if (LOAD) bt[LOAD] = this.MEMLOAD;
+        if (LODM) bt[LODM] = this.MEMLOAD;
 
         this.branchTable = bt;
     }
@@ -242,8 +246,8 @@ class CPU {
         // const currentInstruction = this.mem[this.reg.PC];
         this.membus.ADDR = this.reg.PC;                             // set read/write memory address
         this.membus.READ();                                         // read memory location
-        const currentInstruction = this.membus.DATA();                  // read data from membus
-        // console.log(currentInstruction);
+        const currentInstruction = this.membus.DATA();              // read data from membus
+        console.log(currentInstruction);
         const handler = this.branchTable[currentInstruction];
 
         if (handler === undefined) {
@@ -254,7 +258,6 @@ class CPU {
             this.stopClock();
             return;
         }
-
         handler.call(this); // set this explicitly in handler
     }
 
@@ -333,6 +336,7 @@ class CPU {
      * @method SAVE
      */
     SAVE() {
+        console.log('SAVE...');
         this.membus.ADDR = this.reg.PC + 1;                         // Set memory read/write address
         this.membus.READ();                                         // read memory
         this.reg[this.curReg] = this.membus.DATA();                 // read membus data
@@ -629,11 +633,18 @@ class CPU {
      */
     RAD() {
         // shift bits left by 4
-        const read = this.reg[this.curReg] << 4;
+        // const read = this.reg[this.curReg] << 4;
+        // switching from looking for value in reg to value in next mem location
+        this.membus.ADDR = this.reg.PC + 1;                         // set memory read/write address
+        this.membus.READ();                                         // read memory location
+        const read = this.membus.DATA();                            // read data from memory
+        read <<= 4;
         // get right 4 bits
         const write = this.reg.SRM & 0b00001111;
         // assign the SMR the or of both.  (combine)
         this.reg.SMR = read | write;
+        this.membus.setBANK(this.reg.SMR);                          // set mem banks
+        this.reg.PC += 2;
     }
 
     /**
@@ -647,6 +658,7 @@ class CPU {
         const write = this.reg.SRM & 0b00001111;
         // assign the SMR the or of both.  (combine)
         this.reg.SMR = read | write;
+        this.reg.PC += 1;
     }
 
     /**
@@ -655,11 +667,16 @@ class CPU {
      */
     WAD() {
         // get write bits
-        const write = this.reg[this.curReg];
+        // // switching from looking for value in reg to value in next mem location
+        // const write = this.reg[this.curReg];
+        this.membus.ADDR = this.reg.PC + 1;                         // set memory read/write address
+        this.membus.READ();                                         // read memory location
+        const write = this.membus.DATA();                           // read data from memory
         // get current read bits and mask out write bits
         const read = this.reg.SRM &0b11110000;
         // assign read and write
         this.reg.SMR = read | write;
+        this.reg.PC += 2;
     }
 
     /**
@@ -673,6 +690,7 @@ class CPU {
         const read = this.reg.SRM &0b11110000;
         // assign read and write
         this.reg.SMR = read | write;
+        this.reg.PC += 1;
     }
 
     /**
@@ -684,67 +702,11 @@ class CPU {
     }
 
     /**
-     * Switch running between Ram or Memory
-     * @method SRM
-     */
-    smr() {
-        switch(this.reg.SRM) {
-            case 2:
-                // Read Catridge
-                break;
-            case 1:
-                // Read Memory
-                break;
-            case 0:
-            default:
-                // Read ROM
-        }
-    }
-
-    /**
      * Read SRM value and place into current register
      * @method RSRM
      */
     rsrm() {
         this.reg[this.curReg] = this.reg.SRM;
-    }
-
-    /**
-     * Load from location specified by SRM (Bank Switch).
-     * You don't specify memory or rom, just get data from switched based on SRM
-     * @method LSRM
-     */
-    lsrm() {
-        // TODO: Replace this with bitwise processing.
-        switch(this.reg.SRM) {
-            case 2:
-                // Read Catridge
-                break;
-            case 1:
-                // Read Memory
-                break;
-            case 0:
-            default:
-                // Read ROM
-        }
-    }
-
-    /**
-     * Store in location at SRM (Bank Switch) set location.
-     * @method SSRM
-     */
-    ssrm() {
-        switch(this.reg.SRM) {
-            case 2:
-                // Read Catridge
-                break;
-            case 1:
-                // Read Memory
-                break;
-            case 0:
-            default:
-                // Read ROM
-        }
     }
 
     /**
