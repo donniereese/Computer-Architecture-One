@@ -1,6 +1,25 @@
 00000001 # initialize #initializes the app in rom
-# load keyboard driver and set keyboard interrupt to it.
-# write program that listens for key presses
-# on key press load key into memory
-# print character
-# clear key character
+00100000 # Set interrupt 0 to memory address
+00000000 #      interrupt 0
+00000110 #      interrupt location in memory
+00010001 # jump to memory address
+00000111 #      memory address 7
+-------- # set register to
+-------- #      register 0
+-------- # write value to directly to memory
+-------- #      memory location (let's say 24 to allow for the first 24 values for storage) the next position in memory will be the start of the user program buffer.
+-------- #      value to save (25)
+-------- # read extension register buffer (should write to current register)
+-------- # set register to
+-------- #      register 1
+-------- # save the value to memory address
+-------- #      memory location
+
+00000010 # set register
+00000000 #      register address 0
+00010001 # jump to memory address
+00000111 #      memory address 7
+# set register to 0                 # keyboard interrupt
+# get EXT register for interrupt
+#       interrupt 0
+# copy extension register to register

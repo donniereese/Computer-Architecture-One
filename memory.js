@@ -1,7 +1,7 @@
 class MEMORY {
     constructor() {
         this.bank = new Array(255);
-        this.bank.fill(0);
+        this.bank.fill(0b00000000);
     }
 
     read(addr) {

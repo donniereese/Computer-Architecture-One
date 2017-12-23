@@ -1,7 +1,7 @@
-00000001
-00000010
-00000000
-00000100
-10110101 #181
-00000110
-00000000
+00000001    # Initialize
+00000010    # Set Register Address
+00000000    # register 0
+00000100    # save memory value to current register
+10110101    # 128 + 32 + 16 + 4 + 1 = 181
+00000110    # Print register value out
+00000000    # Halt
